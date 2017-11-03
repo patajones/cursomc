@@ -2,28 +2,54 @@ package br.com.patajones.cursomc.dto;
 
 import java.io.Serializable;
 
+import javax.validation.constraints.NotNull;
+
+import org.hibernate.validator.constraints.Email;
+import org.hibernate.validator.constraints.Length;
+import org.hibernate.validator.constraints.NotEmpty;
+
+import br.com.patajones.cursomc.services.validation.ClienteInsert;
+
+@ClienteInsert
 public class ClienteNewDTO implements Serializable {
 	private static final long serialVersionUID = 1L;
 
+	@NotEmpty(message = "Nome deve ser informado.")
+	@Length(min = 5, max = 80, message = "O nome deve conter entre 5 e 80 carateres.")
 	private String nome;
+
+	@NotEmpty(message = "Email deve ser informado.")
+	@Email(message = "Email inválido.")
 	private String email;
+
+	@NotEmpty(message = "CPF ou CNPJ deve ser informado.")
 	private String cpfOuCnpj;
+	
+	@NotNull(message = "O Tipo deve ser informado.")
 	private Integer tipo;
 
+	@NotEmpty(message = "Logradourado deve ser informado.")
 	private String logradouro;
+
 	private String numero;
+
 	private String complemento;
+
 	private String bairro;
+
+	@NotEmpty(message = "CEP deve ser informado.")
 	private String cep;
 
+	@NotEmpty(message = "O Telefone 1 deve ser informado.")
 	private String telefone1;
 	private String telefone2;
 	private String telefone3;
 
+	@NotNull(message = "A Cidade deve ser informada.")
 	private Integer cidadeId;
-	
+
 	public ClienteNewDTO() {
-	
+
 	}
 
 	public String getNome() {
@@ -129,6 +155,5 @@ public class ClienteNewDTO implements Serializable {
 	public void setCidadeId(Integer cidadeId) {
 		this.cidadeId = cidadeId;
 	}
-	
-	
+
 }
