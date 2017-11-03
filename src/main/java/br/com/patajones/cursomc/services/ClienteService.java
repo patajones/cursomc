@@ -10,8 +10,13 @@ import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 
 import br.com.patajones.cursomc.domain.Cliente;
+import br.com.patajones.cursomc.domain.Endereco;
+import br.com.patajones.cursomc.domain.enums.TipoCliente;
 import br.com.patajones.cursomc.dto.ClienteDTO;
+import br.com.patajones.cursomc.dto.ClienteNewDTO;
+import br.com.patajones.cursomc.repositories.CidadeRepository;
 import br.com.patajones.cursomc.repositories.ClienteRepository;
+import br.com.patajones.cursomc.repositories.EnderecoRepository;
 import br.com.patajones.cursomc.services.exceptions.DataIntegrityException;
 import br.com.patajones.cursomc.services.exceptions.ObjectNotFoundException;
 
@@ -20,6 +25,10 @@ public class ClienteService {
 
 	@Autowired
 	private ClienteRepository repo;
+	@Autowired
+	private CidadeRepository repo_cidade;
+	@Autowired
+	private EnderecoRepository repo_endereco;
 
 	public Cliente find(Integer id) {
 		Cliente obj = repo.findOne(id);
@@ -31,7 +40,9 @@ public class ClienteService {
 
 	public Cliente insert(Cliente obj) {
 		obj.setId(null);
-		return repo.save(obj);
+		obj = repo.save(obj);
+		repo_endereco.save(obj.getEnderecos());
+		return obj;
 	}
 
 	public Cliente update(Cliente obj) {
@@ -62,8 +73,22 @@ public class ClienteService {
 		return new Cliente(dto.getId(), dto.getNome(), dto.getEmail(),null);
 	}
 	
+	public Cliente fromDTO(ClienteNewDTO dto) {
+		Cliente obj = new Cliente(null, dto.getNome(), dto.getEmail(), dto.getCpfOuCnpj(), TipoCliente.toEnum(dto.getTipo()));
+		Endereco end = new Endereco(null, dto.getLogradouro(), dto.getNumero(), dto.getComplemento(), dto.getBairro(), dto.getCep(), obj, repo_cidade.findOne(dto.getCidadeId()));
+		obj.getEnderecos().add(end);
+		obj.getTelefones().add(dto.getTelefone1());
+		if (dto.getTelefone2()!=null) { 
+			obj.getTelefones().add(dto.getTelefone2());
+		}
+		if (dto.getTelefone3()!=null) { 
+			obj.getTelefones().add(dto.getTelefone3());
+		}		
+		return obj;
+	}
+	
 	public void updateData(Cliente data, Cliente obj) {		
 		data.setNome(obj.getNome());
 		data.setEmail(obj.getEmail());		
-	}	
+	}
 }
