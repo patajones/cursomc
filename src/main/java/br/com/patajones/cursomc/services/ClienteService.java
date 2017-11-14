@@ -7,6 +7,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort.Direction;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import br.com.patajones.cursomc.domain.Cliente;
@@ -28,7 +29,9 @@ public class ClienteService {
 	@Autowired
 	private CidadeRepository repo_cidade;
 	@Autowired
-	private EnderecoRepository repo_endereco;
+	private EnderecoRepository repo_endereco;	
+	@Autowired
+	private BCryptPasswordEncoder encoder;
 
 	public Cliente find(Integer id) {
 		Cliente obj = repo.findOne(id);
@@ -74,7 +77,7 @@ public class ClienteService {
 	}
 	
 	public Cliente fromDTO(ClienteNewDTO dto) {
-		Cliente obj = new Cliente(null, dto.getNome(), dto.getEmail(), dto.getCpfOuCnpj(), TipoCliente.toEnum(dto.getTipo()));
+		Cliente obj = new Cliente(null, dto.getNome(), dto.getEmail(), dto.getCpfOuCnpj(), encoder.encode(dto.getSenha()), TipoCliente.toEnum(dto.getTipo()));
 		Endereco end = new Endereco(null, dto.getLogradouro(), dto.getNumero(), dto.getComplemento(), dto.getBairro(), dto.getCep(), obj, repo_cidade.findOne(dto.getCidadeId()));
 		obj.getEnderecos().add(end);
 		obj.getTelefones().add(dto.getTelefone1());
