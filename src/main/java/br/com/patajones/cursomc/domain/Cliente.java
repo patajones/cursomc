@@ -5,12 +5,14 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.persistence.CascadeType;
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -18,6 +20,7 @@ import javax.persistence.OneToMany;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import br.com.patajones.cursomc.domain.enums.Perfil;
 import br.com.patajones.cursomc.domain.enums.TipoCliente;
 
 @Entity
@@ -41,6 +44,9 @@ public class Cliente implements Serializable {
 	
 	private Integer tipo;
 	
+	@ElementCollection(fetch=FetchType.EAGER)
+	@CollectionTable(name = "PERFIS")
+	private Set<Integer> perfis = new HashSet<>();	
 
 	@OneToMany(mappedBy = "cliente", cascade=CascadeType.ALL)
 	private List<Endereco> enderecos = new ArrayList<>();
@@ -54,7 +60,7 @@ public class Cliente implements Serializable {
 	private List<Pedido> pedidos = new ArrayList<>();
 
 	public Cliente() {
-
+		addPerfil(Perfil.CLIENTE);
 	}
 
 	public Cliente(Integer id, String nome, String email, String cpfOuCnpj, String senha, TipoCliente tipo) {
@@ -64,7 +70,8 @@ public class Cliente implements Serializable {
 		this.email = email;
 		this.cpfOuCnpj = cpfOuCnpj;
 		this.senha = senha;
-		this.tipo = tipo==null?null:tipo.getCod();		
+		this.tipo = tipo==null?null:tipo.getCod();
+		addPerfil(Perfil.CLIENTE);
 	}
 	
 	public Cliente(Integer id, String nome, String email, String cpfOuCnpj) {
@@ -73,6 +80,7 @@ public class Cliente implements Serializable {
 		this.nome = nome;
 		this.email = email;
 		this.cpfOuCnpj = cpfOuCnpj;
+		addPerfil(Perfil.CLIENTE);
 	}	
 
 	public Integer getId() {
@@ -138,7 +146,15 @@ public class Cliente implements Serializable {
 	public void setSenha(String senha) {
 		this.senha = senha;
 	}	
-
+	
+	public Set<Perfil> getPerfis() {
+		return perfis.stream().map(x -> Perfil.toEnum(x)).collect(Collectors.toSet());
+	}
+	
+	public void addPerfil(Perfil perfil) {
+		perfis.add(perfil.getCod());
+	}
+	
 	public List<Pedido> getPedidos() {
 		return pedidos;
 	}
