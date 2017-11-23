@@ -12,12 +12,15 @@ import org.springframework.stereotype.Service;
 
 import br.com.patajones.cursomc.domain.Cliente;
 import br.com.patajones.cursomc.domain.Endereco;
+import br.com.patajones.cursomc.domain.enums.Perfil;
 import br.com.patajones.cursomc.domain.enums.TipoCliente;
 import br.com.patajones.cursomc.dto.ClienteDTO;
 import br.com.patajones.cursomc.dto.ClienteNewDTO;
 import br.com.patajones.cursomc.repositories.CidadeRepository;
 import br.com.patajones.cursomc.repositories.ClienteRepository;
 import br.com.patajones.cursomc.repositories.EnderecoRepository;
+import br.com.patajones.cursomc.security.UserSS;
+import br.com.patajones.cursomc.services.exceptions.AuthorizationException;
 import br.com.patajones.cursomc.services.exceptions.DataIntegrityException;
 import br.com.patajones.cursomc.services.exceptions.ObjectNotFoundException;
 
@@ -34,6 +37,11 @@ public class ClienteService {
 	private BCryptPasswordEncoder encoder;
 
 	public Cliente find(Integer id) {
+		UserSS user = UserService.authenticated();
+		if (user==null || (!user.hasRole(Perfil.ADMIN) && !id.equals(user.getId()))) {
+			throw new AuthorizationException("Acesso negado");
+		}
+		
 		Cliente obj = repo.findOne(id);
 		if (obj==null) {
 			throw new ObjectNotFoundException("Cliente não encontrado! Id:"+id);
