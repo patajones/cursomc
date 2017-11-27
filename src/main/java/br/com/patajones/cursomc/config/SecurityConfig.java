@@ -1,6 +1,7 @@
 package br.com.patajones.cursomc.config;
 
 import java.util.Arrays;
+import java.util.stream.Stream;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -37,12 +38,15 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	@Autowired
 	private JWTUtil jwtUtil;
 
-	private static final String[] PUBLIC_MATCHERS = { "/h2-console/**" };
 
 	private static final String[] PUBLIC_MATCHERS_GET = { "/produtos/**", "/categorias/**" };
 	
 	private static final String[] PUBLIC_MATCHERS_POST = { "/clientes/**", "/auth/forgot/**" };
+	
+	private static final String[] SWAGGER_MATCHERS = { "/swagger-ui.html", "/v2/api-docs/**", "/swagger-resources/**", "/webjars/**"};
 
+	private static final String[] PUBLIC_MATCHERS = Stream.concat(Arrays.asList(new String[] {"/h2-console/**"}).stream(), Arrays.asList(SWAGGER_MATCHERS).stream()).toArray(String[]::new);
+	
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		if (Arrays.asList(env.getActiveProfiles()).contains("test")) {
