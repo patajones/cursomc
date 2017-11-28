@@ -1,5 +1,6 @@
 package br.com.patajones.cursomc.services;
 
+import java.net.URI;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +10,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import br.com.patajones.cursomc.domain.Cliente;
 import br.com.patajones.cursomc.domain.Endereco;
@@ -35,6 +37,8 @@ public class ClienteService {
 	private EnderecoRepository repo_endereco;	
 	@Autowired
 	private BCryptPasswordEncoder encoder;
+        @Autowired
+        private S3Service s3Service;
 
 	public Cliente find(Integer id) {
 		UserSS user = UserService.authenticated();
@@ -101,5 +105,9 @@ public class ClienteService {
 	public void updateData(Cliente data, Cliente obj) {		
 		data.setNome(obj.getNome());
 		data.setEmail(obj.getEmail());		
+	}
+	
+	public URI uploadProfilePicture(MultipartFile multipartFile) {
+	    return s3Service.uploadFile(multipartFile);	    
 	}
 }
